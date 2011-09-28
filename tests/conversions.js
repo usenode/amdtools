@@ -1,6 +1,6 @@
 
 var litmus = require('litmus'),
-    amdtools = require('../lib/amdtools');
+    amdtools = require('..');
 
 exports.test = new litmus.Test('amd conversions test', function () {
     var test = this;
