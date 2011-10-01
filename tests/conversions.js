@@ -5,7 +5,7 @@ var litmus = require('litmus'),
 exports.test = new litmus.Test('amd conversions test', function () {
     var test = this;
 
-    test.plan(11);
+    test.plan(14);
 
     function testCommonJsToAmd (body, options, namePart, dependenciesPart, name) {
         test.is(
@@ -102,6 +102,29 @@ exports.test = new litmus.Test('amd conversions test', function () {
         ',"foo"',
         'allow multiple *s in multiline comments (spotted by micmath++)'
     );
+
+    // this cheats a little by re-evaluating the passed in function in a new context, to allow access
+    // to a local "define", "mainRequire", "mainExports" and "mainModule" variables to test with
+    function testAmdToCommonJs (runner) {
+        var require     = function () { console.log('in local require'); },
+            mainRequire = require,
+            exports     = {},
+            mainExports = exports,
+            module      = {}
+            mainModule  = module;
+        eval(amdtools.amdToCommonJs('(' + runner.toString() + ')();'));
+    }
+
+    testAmdToCommonJs(
+        function () {
+            define(function (require, exports, module) {
+                test.is(require, mainRequire, 'default first parameter is require');
+                test.is(exports, mainExports, 'default second parameter is exports');
+                test.is(module, mainModule, 'default third parameter is module');
+            });
+        }
+    );
+
 });
 
 
