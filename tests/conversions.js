@@ -84,7 +84,7 @@ exports.test = new litmus.Test('amd conversions test', function () {
         {},
         '',
         ',"foo"',
-        'can have comments before parameters'
+        'can have comments before parameters (edge case found by micmath++)'
     );
 
     testCommonJsToAmd(
@@ -92,7 +92,7 @@ exports.test = new litmus.Test('amd conversions test', function () {
         {},
         '',
         ',"foo"',
-        'avoid method call false positive (edge case found by micmath++)'
+        'avoid method call false positive'
     );
 
     testCommonJsToAmd(
