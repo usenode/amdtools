@@ -5,7 +5,7 @@ var litmus = require('litmus'),
 exports.test = new litmus.Test('amd conversions test', function () {
     var test = this;
 
-    test.plan(8);
+    test.plan(11);
 
     function testCommonJsToAmd (body, options, namePart, dependenciesPart, name) {
         test.is(
@@ -77,6 +77,30 @@ exports.test = new litmus.Test('amd conversions test', function () {
         '"bar",',
         ',"foo"',
         'can provide optional name'
+    );
+
+    testCommonJsToAmd(
+        'require \n // ... \n /* \n ... \n */ \n ("foo")',
+        {},
+        '',
+        ',"foo"',
+        'can have comments before parameters'
+    );
+
+    testCommonJsToAmd(
+        'require("foo"); bar \n . /* \n ... \n */ \n // ... \n require("baz")',
+        {},
+        '',
+        ',"foo"',
+        'avoid method call false positive (edge case found by micmath++)'
+    );
+
+    testCommonJsToAmd(
+        'require("foo"); /** require("bar") */',
+        {},
+        '',
+        ',"foo"',
+        'allow multiple *s in multiline comments (spotted by micmath++)'
     );
 });
 
