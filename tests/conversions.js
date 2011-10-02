@@ -5,7 +5,7 @@ var litmus = require('litmus'),
 exports.test = new litmus.Test('amd conversions test', function () {
     var test = this;
 
-    test.plan(16);
+    test.plan(26);
 
     function testCommonJsToAmd (body, options, namePart, dependenciesPart, name) {
         test.is(
@@ -107,11 +107,14 @@ exports.test = new litmus.Test('amd conversions test', function () {
     // to a local "define", "mainRequire", "mainExports" and "mainModule" variables to test with
     function testAmdToCommonJs (runner, checker) {
         var required    = [],
-            require     = function (what) { required.push(what); },
+            require     = function (what) {
+                required.push(what);
+                return { name: what };
+            },
             mainRequire = require,
             exports     = {},
             mainExports = exports,
-            module      = {}
+            module      = { id: 'name' }
             mainModule  = module;
         eval(amdtools.amdToCommonJs('(' + runner.toString() + ')();'));
         checker(required, exports);
@@ -128,6 +131,34 @@ exports.test = new litmus.Test('amd conversions test', function () {
         function (required, exported) {
             test.is(required.length, 0, 'nothing required by default');
             test.is(Object.keys(exported).length, 0, 'nothing exported by default');
+        }
+    );
+
+    testAmdToCommonJs(
+        function () {
+            define('name', function (require, exports, module) {
+                test.is(require, mainRequire, 'default first parameter is require for named define');
+                test.is(exports, mainExports, 'default second parameter is exports for named define');
+                test.is(module, mainModule, 'default third parameter is module for named define');
+            });
+        },
+        function (required, exported) {
+            test.is(required.length, 0, 'nothing required by default for named define');
+            test.is(Object.keys(exported).length, 0, 'nothing exported by default for named define');
+        }
+    );
+
+    testAmdToCommonJs(
+        function () {
+            define(['b', 'c', 'a'], function (first, second, third) {
+                test.is(first.name, 'b', 'first dependency loaded');
+                test.is(second.name, 'c', 'second dependency loaded');
+                test.is(third.name, 'a', 'third dependency loaded');
+            });
+        },
+        function (required, exported) {
+            test.is(required, ['b', 'c', 'a'], 'require called for each unique dependency');
+            test.is(Object.keys(exported).length, 0, 'nothing exported by default when dependencies loaded');
         }
     );
 });
