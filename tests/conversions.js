@@ -5,7 +5,7 @@ var litmus = require('litmus'),
 exports.test = new litmus.Test('amd conversions test', function () {
     var test = this;
 
-    test.plan(14);
+    test.plan(16);
 
     function testCommonJsToAmd (body, options, namePart, dependenciesPart, name) {
         test.is(
@@ -105,14 +105,16 @@ exports.test = new litmus.Test('amd conversions test', function () {
 
     // this cheats a little by re-evaluating the passed in function in a new context, to allow access
     // to a local "define", "mainRequire", "mainExports" and "mainModule" variables to test with
-    function testAmdToCommonJs (runner) {
-        var require     = function () { console.log('in local require'); },
+    function testAmdToCommonJs (runner, checker) {
+        var required    = [],
+            require     = function (what) { required.push(what); },
             mainRequire = require,
             exports     = {},
             mainExports = exports,
             module      = {}
             mainModule  = module;
         eval(amdtools.amdToCommonJs('(' + runner.toString() + ')();'));
+        checker(required, exports);
     }
 
     testAmdToCommonJs(
@@ -122,9 +124,12 @@ exports.test = new litmus.Test('amd conversions test', function () {
                 test.is(exports, mainExports, 'default second parameter is exports');
                 test.is(module, mainModule, 'default third parameter is module');
             });
+        },
+        function (required, exported) {
+            test.is(required.length, 0, 'nothing required by default');
+            test.is(Object.keys(exported).length, 0, 'nothing exported by default');
         }
     );
-
 });
 
 
