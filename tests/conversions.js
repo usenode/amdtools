@@ -5,7 +5,7 @@ var litmus = require('litmus'),
 exports.test = new litmus.Test('amd conversions test', function () {
     var test = this;
 
-    test.plan(49);
+    test.plan(51);
 
     function testCommonJsToAmd (body, options, namePart, dependenciesPart, name) {
         test.is(
@@ -101,6 +101,18 @@ exports.test = new litmus.Test('amd conversions test', function () {
         '',
         ',"foo"',
         'allow multiple *s in multiline comments (spotted by micmath++)'
+    );
+
+    test.is(
+        amdtools.commonJsToAmd("define(['blah'], function(){})", {}),
+        "define(['blah'], function(){})",
+        'a module already in AMD format is left untouched'
+    );
+
+    test.is(
+        amdtools.commonJsToAmd("var test = undefined;", {}),
+        'define(["require","exports","module"],function(require,exports,module){var test = undefined;\n});',
+        "only ignore if there is a define() statement"
     );
 
     // this cheats a little by re-evaluating the passed in function in a new context, to allow access
