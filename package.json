@@ -1,7 +1,7 @@
 {
     "name"         : "amdtools",
     "description"  : "Tools for Asynchronous Module Dispatch",
-    "version"      : "0.0.0",
+    "version"      : "0.1.0",
     "author"       : "Thomas Yandell <tom.deletethis@yandell.me.uk> (http://tom.yandell.me.uk/blog/)",
     "maintainers"  : [
         {
