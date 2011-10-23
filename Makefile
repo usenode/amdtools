@@ -16,4 +16,4 @@ publish: lib/amdtools.js
 	git commit -m 'Version for release' package.json && \
 	git tag v$$new_version && \
 	git push --tags && \
-	npm publish https://github.com/usenode/amdtools/tarball/v$$new_version
+	npm publish .
