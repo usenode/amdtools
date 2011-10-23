@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+var fs       = require('promised-io/fs'),
+    amdtools = require('../lib/amdtools');
+
+if (! process.argv[2]) {
+    process.stderr.write("Usage: $ commonjs-to-amd path/to/file\n");
+    process.exit(1);
+}
+
+var file = process.argv[2];
+
+fs.readFile(file, 'utf8').then(function (contents) {
+    var converted = amdtools.commonJsToAmd(contents.toString());
+    process.stdout.write(converted);
+});
